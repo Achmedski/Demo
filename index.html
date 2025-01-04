@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Demo Website</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://sdks.shopifycdn.com/buy-button/2.1.0/buybutton.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>My Shopify Store</h1>
+            <nav>
+                <a href="#home">Home</a>
+                <a href="#products">Products</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <section id="home" class="banner">
+        <div class="container">
+            <h2>Welcome to My Shopify Store</h2>
+            <p>Your one-stop shop for amazing products!</p>
+        </div>
+    </section>
+
+    <section id="products" class="products">
+        <div class="container">
+            <h2>Our Products</h2>
+            <div id="product-list"></div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 My Shopify Store. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Shopify Buy Button SDK
+        const client = ShopifyBuy.buildClient({
+            domain: 'your-shop-name.myshopify.com', // Replace with your Shopify store domain
+            storefrontAccessToken: 'your-storefront-access-token' // Replace with your access token
+        });
+
+        const ui = ShopifyBuy.UI.init(client);
+
+        // Render products
+        function renderProducts() {
+            const productContainer = document.getElementById('product-list');
+
+            client.product.fetchAll().then((products) => {
+                products.forEach((product) => {
+                    const productDiv = document.createElement('div');
+                    productDiv.className = 'product';
+
+                    productDiv.innerHTML = `
+                        <img src="${product.images[0]?.src || ''}" alt="${product.title}" />
+                        <h3>${product.title}</h3>
+                        <p>${product.description}</p>
+                        <div class="buy-button" id="buy-button-${product.id}"></div>
+                    `;
+
+                    productContainer.appendChild(productDiv);
+
+                    // Create Shopify Buy Button
+                    ui.createComponent('product', {
+                        id: product.id,
+                        node: document.getElementById(`buy-button-${product.id}`),
+                        options: {
+                            product: {
+                                iframe: false,
+                                buttonDestination: 'modal',
+                            },
+                            cart: {
+                                startOpen: false,
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        renderProducts();
+    </script>
+</body>
+</html>
